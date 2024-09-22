@@ -2,18 +2,20 @@ import RestaurentCard from "./RestaurentCard";
 import { useState, useEffect } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
+import useOnlineStatus from "../utils/useOnlineStatus";
 
 const Body = () => {
     const [listOfRestaurant, setListOfRestaurant] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [filteredListOfRestaurant, setFilteredListOfRestaurant] = useState([]);
+    const onlineStatus = useOnlineStatus();
 
     useEffect(() => {
         fetchData();
     }, []);
 
     const fetchData = async () => {
-        const data = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=28.6616862&lng=77.2304635&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING");
+        const data = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9352403&lng=77.624532");
 
         const json = await data.json();
 
@@ -22,6 +24,9 @@ const Body = () => {
         setListOfRestaurant(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
         setFilteredListOfRestaurant(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
     }
+
+    if (onlineStatus === false) return <h1>You are offline!!! Please check your internet cunnoction.</h1>
+
     return listOfRestaurant.length === 0 ? <Shimmer /> : (
         <div className="body">
             <div className="filter">
