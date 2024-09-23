@@ -14,8 +14,8 @@ const RestaurantMenu = () => {
     console.log(itemCards);
 
     return (
-        <div className="menu">
-            <h1>{name}</h1>
+        <div className="menu m-4 p-4">
+            <h1 className="text-2xl font-bold">{name}</h1>
             <h3>{cuisines.join(", ")}</h3>
             <h3>{costForTwoMessage}</h3>
             <ul>
