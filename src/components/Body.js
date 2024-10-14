@@ -1,8 +1,9 @@
-import RestaurentCard from "./RestaurentCard";
-import { useState, useEffect } from "react";
+import RestaurentCard, { withPromotedLabel } from "./RestaurentCard";
+import { useState, useEffect, useContext } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
+import UserContext from "../utils/UserContext";
 
 const Body = () => {
     const [listOfRestaurant, setListOfRestaurant] = useState([]);
@@ -19,14 +20,16 @@ const Body = () => {
 
         const json = await data.json();
 
-        console.log(json);
 
         setListOfRestaurant(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
         setFilteredListOfRestaurant(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
     }
 
+    const RestaurantCardPromoted = withPromotedLabel(RestaurentCard);
+
     if (onlineStatus === false) return <h1>You are offline!!! Please check your internet cunnoction.</h1>
 
+    const { loggedInUser, setUserName } = useContext(UserContext);
     return listOfRestaurant.length === 0 ? <Shimmer /> : (
         <div className="body">
             <div className="filter flex items-center">
@@ -36,7 +39,6 @@ const Body = () => {
                     }} />
                     <button className="px-4 py-2 m-4 bg-green-200  rounded-lg"
                         onClick={() => {
-                            console.log(searchText);
                             const filteredRestaurant = listOfRestaurant.filter((restaurant) => {
                                 return restaurant.info.name.toLowerCase().includes(searchText.toLowerCase());
                             })
@@ -56,11 +58,22 @@ const Body = () => {
                     </button>
                 </div>
 
+                <div className="m-4 p-4">
+                    <label>UserName : </label>
+                    <input className="border border-black p-2"
+                        value={loggedInUser}
+                        onChange={(e) => {
+                            setUserName(e.target.value);
+                        }} />
+                </div>
+
             </div>
             <div className="restaurant-container flex flex-wrap">
                 {
                     filteredListOfRestaurant.map((restaurant) => (
-                        <Link to={"/restaurants/" + restaurant.info.id} key={restaurant.info.id}><RestaurentCard resData={restaurant} /></Link>
+                        <Link to={"/restaurants/" + restaurant.info.id} key={restaurant.info.id}>
+                            {restaurant.info.externalRatings.source === "GOOGLE" ? <RestaurantCardPromoted resData={restaurant} /> : <RestaurentCard resData={restaurant} />}
+                        </Link>
                     ))
                 }
             </div>
